@@ -32,6 +32,20 @@ void allOff() {
   }
 }
 
+void bounce() {
+  allOff();
+  for (int thisPin = 9; thisPin <= 12; thisPin++) {
+    digitalWrite(thisPin, HIGH);
+    delay(250);
+    digitalWrite(thisPin, LOW)
+  }
+  for (int thisPin = 13; thisPin >= 10; thisPin--) {
+    digitalWrite(thisPin, HIGH);
+    delay(250);
+    digitalWrite(thisPin, LOW)
+  }
+}
+
 // the loop function runs over and over again forever
 void loop() {
   digitalWrite(13, HIGH);   // turn the LED on (HIGH is the voltage level)
