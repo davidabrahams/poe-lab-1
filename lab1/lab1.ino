@@ -40,13 +40,13 @@ void bounce() {
   allOff();
   for (int thisPin = 9; thisPin <= 12; thisPin++) {
     digitalWrite(thisPin, HIGH);
-    delay(250);
-    digitalWrite(thisPin, LOW)
+    delay(50);
+    digitalWrite(thisPin, LOW);
   }
   for (int thisPin = 13; thisPin >= 10; thisPin--) {
     digitalWrite(thisPin, HIGH);
-    delay(250);
-    digitalWrite(thisPin, LOW)
+    delay(50);
+    digitalWrite(thisPin, LOW);
   }
 }
 
@@ -69,5 +69,5 @@ void allFlash() {
 
 //// the loop function runs over and over again forever
 void loop() {
-  allFlash();
+  bounce();
 }
