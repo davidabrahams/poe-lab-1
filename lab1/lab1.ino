@@ -26,6 +26,12 @@ void allOn() {
   }
 }
 
+void allOff() {
+  for (int thisPin = 9; thisPin <= 13; thisPin++) {
+    digitalWrite(thisPin, LOW);
+  }
+}
+
 // the loop function runs over and over again forever
 void loop() {
   digitalWrite(13, HIGH);   // turn the LED on (HIGH is the voltage level)
