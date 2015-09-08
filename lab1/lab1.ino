@@ -37,6 +37,7 @@ void allOff() {
 }
 
 void allBlink() {
+  allOff();
   for (int thisPin = 9; thisPin <= 13; thisPin++) {
     digitalWrite(thisPin, HIGH);
     delay(1000);
