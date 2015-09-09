@@ -1,17 +1,3 @@
-/*
-  Blink
-  Turns on an LED on for one second, then off for one second, repeatedly.
-
-  Most Arduinos have an on-board LED you can control. On the Uno and
-  Leonardo, it is attached to digital pin 13. If you're unsure what
-  pin the on-board LED is connected to on your Arduino model, check
-  the documentation at http://www.arduino.cc
-
-  This example code is in the public domain.
-
-  modified 8 May 2014
-  by Scott Fitzgerald
- */
 
 const int inPin = 8;
 const int outPins[] = {9, 10, 11, 12, 13};
@@ -43,19 +29,26 @@ void allOff() {
 }
 
 void bounce() {
-  allOff();
-  for (int thisPin = 9; thisPin <= 12; thisPin++) {
-    digitalWrite(thisPin, HIGH);
-    checkButton();
-    delay(50);
-    digitalWrite(thisPin, LOW);
+
+  curr_time = millis();
+  phases = 8;
+  speed = 50;  // in milliseconds
+  currentPhase = (curr_time % speed) % phases;
+
+  switch(currentPhase)
+  {
+
+    case 0 : digitalWrite(outPins[0], HIGH);
+    case 1 : digitalWrite(outPins[1], HIGH);
+    case 2 : digitalWrite(outPins[2], HIGH);
+    case 3 : digitalWrite(outPins[3], HIGH);
+    case 4 : digitalWrite(outPins[4], HIGH);
+    case 5 : digitalWrite(outPins[3], HIGH);
+    case 6 : digitalWrite(outPins[2], HIGH);
+    case 7 : digitalWrite(outPins[1], HIGH);
+
   }
-  for (int thisPin = 13; thisPin >= 10; thisPin--) {
-    digitalWrite(thisPin, HIGH);
-    checkButton();
-    delay(50);
-    digitalWrite(thisPin, LOW);
-  }
+
 }
 
 void allBlink() {
@@ -92,7 +85,7 @@ void checkButton() {
 void cycle() {
 
   checkButton();
-  
+
   if (pressCount % 5 == 0) {
     allOn();
   }
