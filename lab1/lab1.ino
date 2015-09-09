@@ -18,77 +18,151 @@ void setup() {
 }
 
 void allOn() {
-  for (int thisPin = 9; thisPin <= 13; thisPin++) {
-    digitalWrite(thisPin, HIGH);
+  for (int i = 0; i < sizeof(outPins); i++) {
+    digitalWrite(outPins[i], HIGH);
   }
 }
 
 void allOff() {
-  for (int thisPin = 9; thisPin <= 13; thisPin++) {
-    digitalWrite(thisPin, LOW);
+  for (int i = 0; i < sizeof(outPins); i++) {
+    digitalWrite(outPins[i], LOW);
+  }
+}
+
+void allOffExcept(int pin)
+{
+  for (int i = 0; i < sizeof(outPins); i++) {
+
+    // If the currnet output pin is in the input, then turn this pin on.
+    if (pin == outPins[i]) {
+      digitalWrite(outPins[i], HIGH);
+    } else {
+      digitalWrite(outPins[i], LOW);
+    }
+  }
+}
+
+void allOffExcept(int pin1, int pin2)
+{
+  for (int i = 0; i < sizeof(outPins); i++) {
+
+    // If the currnet output pin is in the input, then turn this pin on.
+    if (pin1 == outPins[i] || pin2 == outPins[i]) {
+      digitalWrite(outPins[i], HIGH);
+    } else {
+      digitalWrite(outPins[i], LOW);
+    }
   }
 }
 
 void bounce() {
 
-  phases = 8;
-  speed = 50;  // in milliseconds
-  currentPhase = (currTime % speed) % phases;
 
+  int phases = 8;
+  int wait = 50;  // in milliseconds
+  int currentPhase = (currTime % (wait * phases)) / wait;
+  
   switch(currentPhase)
   {
 
-    case 0 : digitalWrite(outPins[0], HIGH);
-    case 1 : digitalWrite(outPins[1], HIGH);
-    case 2 : digitalWrite(outPins[2], HIGH);
-    case 3 : digitalWrite(outPins[3], HIGH);
-    case 4 : digitalWrite(outPins[4], HIGH);
-    case 5 : digitalWrite(outPins[3], HIGH);
-    case 6 : digitalWrite(outPins[2], HIGH);
-    case 7 : digitalWrite(outPins[1], HIGH);
+    case 0 :
+      allOffExcept(outPins[0]);
+      break;
+    case 1 :
+      allOffExcept(outPins[1]);
+      break;
+    case 2 :
+      allOffExcept(outPins[2]);
+      break;
+    case 3 :
+      allOffExcept(outPins[3]);
+      break;
+    case 4 :
+      allOffExcept(outPins[4]);
+      break;
+    case 5 :
+      allOffExcept(outPins[3]);
+      break;
+    case 6 :
+      allOffExcept(outPins[2]);
+      break;
+    case 7 :
+      allOffExcept(outPins[1]);
+      break;
 
   }
 
 }
 
-void cycle() {
+void wheel() {
 
-  phases = 5;
-  speed = 100;
-  currentPhase = (currTime % speed) % phases;
+  int phases = 5;
+  int wait = 100;
+  int currentPhase = (currTime % (wait * phases)) / wait;
 
   switch(currentPhase)
   {
-    case 0 : digitalWrite(outPins[0], HIGH);
-    case 1 : digitalWrite(outPins[1], HIGH);
-    case 2 : digitalWrite(outPins[2], HIGH);
-    case 3 : digitalWrite(outPins[3], HIGH);
-    case 4 : digitalWrite(outPins[4], HIGH);
+    case 0 :
+      allOffExcept(outPins[0]);
+      break;
+    case 1 :
+      allOffExcept(outPins[1]);
+      break;
+    case 2 :
+      allOffExcept(outPins[2]);
+      break;
+    case 3 :
+      allOffExcept(outPins[3]);
+      break;
+    case 4 :
+      allOffExcept(outPins[4]);
+      break;
   }
 
 }
 
-void allBlink() {
-  allOff();
-  for (int thisPin = 9; thisPin <= 13; thisPin++) {
-    digitalWrite(thisPin, HIGH);
-    checkButton();
-    delay(100);
-    digitalWrite(thisPin, LOW);
+void zigzag()
+{
+  int phases = 4;
+  int wait = 100;
+  int currentPhase = (currTime % (wait * phases)) / wait;
+
+  switch(currentPhase)
+  {
+    case 0 :
+      allOffExcept(outPins[0], outPins[4]);   
+      break;
+    case 1 :
+      allOffExcept(outPins[1], outPins[3]);
+      break;
+    case 2 :
+      allOffExcept(outPins[2]);
+      break;
+    case 3 :
+      allOffExcept(outPins[1], outPins[3]);
+      break;
   }
 }
 
 void allFlash() {
-  allOn();
-  checkButton();
-  delay(100);
-  allOff();
-  checkButton();
-  delay(100);
+  
+  int phases = 2;
+  int wait = 100;
+  int currentPhase = (currTime % (wait * phases)) / wait;
+
+  switch(currentPhase)
+  {
+    case 0 :
+      allOn();   
+      break;
+    case 1 :
+      allOff();
+      break;
+  }
 }
 
 void checkButton() {
-  state = digitalRead(8);
+  state = digitalRead(inPin);
 
   if (state != prevState) {
     if (state == HIGH) {
@@ -110,10 +184,10 @@ void cycle() {
     allOff();
   }
   if (pressCount % 5 == 2) {
-    allBlink();
+    bounce();
   }
   if (pressCount % 5 == 3) {
-    bounce();
+    zigzag();
   }
   if (pressCount % 5 == 4) {
     allFlash();
@@ -122,6 +196,9 @@ void cycle() {
 
 //// the loop function runs over and over again forever
 void loop() {
+//  checkButton();
   currTime = millis();
   cycle();
+//allFlash();
+//  allOffExcept(outPins[4]);
 }
