@@ -5,6 +5,7 @@ const int outPins[] = {9, 10, 11, 12, 13};
 int prevState = LOW;
 int state = LOW;
 int pressCount = 0;
+long currTime = 0;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -30,10 +31,9 @@ void allOff() {
 
 void bounce() {
 
-  curr_time = millis();
   phases = 8;
   speed = 50;  // in milliseconds
-  currentPhase = (curr_time % speed) % phases;
+  currentPhase = (currTime % speed) % phases;
 
   switch(currentPhase)
   {
@@ -47,6 +47,23 @@ void bounce() {
     case 6 : digitalWrite(outPins[2], HIGH);
     case 7 : digitalWrite(outPins[1], HIGH);
 
+  }
+
+}
+
+void cycle() {
+
+  phases = 5;
+  speed = 100;
+  currentPhase = (currTime % speed) % phases;
+
+  switch(currentPhase)
+  {
+    case 0 : digitalWrite(outPins[0], HIGH);
+    case 1 : digitalWrite(outPins[1], HIGH);
+    case 2 : digitalWrite(outPins[2], HIGH);
+    case 3 : digitalWrite(outPins[3], HIGH);
+    case 4 : digitalWrite(outPins[4], HIGH);
   }
 
 }
@@ -105,5 +122,6 @@ void cycle() {
 
 //// the loop function runs over and over again forever
 void loop() {
+  currTime = millis();
   cycle();
 }
