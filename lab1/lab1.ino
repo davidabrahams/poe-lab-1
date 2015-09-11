@@ -1,17 +1,3 @@
-/*
-  Blink
-  Turns on an LED on for one second, then off for one second, repeatedly.
-
-  Most Arduinos have an on-board LED you can control. On the Uno and
-  Leonardo, it is attached to digital pin 13. If you're unsure what
-  pin the on-board LED is connected to on your Arduino model, check
-  the documentation at http://www.arduino.cc
-
-  This example code is in the public domain.
-
-  modified 8 May 2014
-  by Scott Fitzgerald
- */
 
 const int inPin = 8;
 const int outPins[] = {9, 10, 11, 12, 13};
@@ -19,6 +5,7 @@ const int outPins[] = {9, 10, 11, 12, 13};
 int prevState = LOW;
 int state = LOW;
 int pressCount = 0;
+long currTime = 0;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -31,54 +18,151 @@ void setup() {
 }
 
 void allOn() {
-  for (int thisPin = 9; thisPin <= 13; thisPin++) {
-    digitalWrite(thisPin, HIGH);
+  for (int i = 0; i < sizeof(outPins); i++) {
+    digitalWrite(outPins[i], HIGH);
   }
 }
 
 void allOff() {
-  for (int thisPin = 9; thisPin <= 13; thisPin++) {
-    digitalWrite(thisPin, LOW);
+  for (int i = 0; i < sizeof(outPins); i++) {
+    digitalWrite(outPins[i], LOW);
+  }
+}
+
+void allOffExcept(int pin)
+{
+  for (int i = 0; i < sizeof(outPins); i++) {
+
+    // If the currnet output pin is in the input, then turn this pin on.
+    if (pin == outPins[i]) {
+      digitalWrite(outPins[i], HIGH);
+    } else {
+      digitalWrite(outPins[i], LOW);
+    }
+  }
+}
+
+void allOffExcept(int pin1, int pin2)
+{
+  for (int i = 0; i < sizeof(outPins); i++) {
+
+    // If the currnet output pin is in the input, then turn this pin on.
+    if (pin1 == outPins[i] || pin2 == outPins[i]) {
+      digitalWrite(outPins[i], HIGH);
+    } else {
+      digitalWrite(outPins[i], LOW);
+    }
   }
 }
 
 void bounce() {
-  allOff();
-  for (int thisPin = 9; thisPin <= 12; thisPin++) {
-    digitalWrite(thisPin, HIGH);
-    checkButton();
-    delay(50);
-    digitalWrite(thisPin, LOW);
+
+
+  int phases = 8;
+  int wait = 50;  // in milliseconds
+  int currentPhase = (currTime % (wait * phases)) / wait;
+  
+  switch(currentPhase)
+  {
+
+    case 0 :
+      allOffExcept(outPins[0]);
+      break;
+    case 1 :
+      allOffExcept(outPins[1]);
+      break;
+    case 2 :
+      allOffExcept(outPins[2]);
+      break;
+    case 3 :
+      allOffExcept(outPins[3]);
+      break;
+    case 4 :
+      allOffExcept(outPins[4]);
+      break;
+    case 5 :
+      allOffExcept(outPins[3]);
+      break;
+    case 6 :
+      allOffExcept(outPins[2]);
+      break;
+    case 7 :
+      allOffExcept(outPins[1]);
+      break;
+
   }
-  for (int thisPin = 13; thisPin >= 10; thisPin--) {
-    digitalWrite(thisPin, HIGH);
-    checkButton();
-    delay(50);
-    digitalWrite(thisPin, LOW);
-  }
+
 }
 
-void allBlink() {
-  allOff();
-  for (int thisPin = 9; thisPin <= 13; thisPin++) {
-    digitalWrite(thisPin, HIGH);
-    checkButton();
-    delay(100);
-    digitalWrite(thisPin, LOW);
+void wheel() {
+
+  int phases = 5;
+  int wait = 100;
+  int currentPhase = (currTime % (wait * phases)) / wait;
+
+  switch(currentPhase)
+  {
+    case 0 :
+      allOffExcept(outPins[0]);
+      break;
+    case 1 :
+      allOffExcept(outPins[1]);
+      break;
+    case 2 :
+      allOffExcept(outPins[2]);
+      break;
+    case 3 :
+      allOffExcept(outPins[3]);
+      break;
+    case 4 :
+      allOffExcept(outPins[4]);
+      break;
+  }
+
+}
+
+void zigzag()
+{
+  int phases = 4;
+  int wait = 100;
+  int currentPhase = (currTime % (wait * phases)) / wait;
+
+  switch(currentPhase)
+  {
+    case 0 :
+      allOffExcept(outPins[0], outPins[4]);   
+      break;
+    case 1 :
+      allOffExcept(outPins[1], outPins[3]);
+      break;
+    case 2 :
+      allOffExcept(outPins[2]);
+      break;
+    case 3 :
+      allOffExcept(outPins[1], outPins[3]);
+      break;
   }
 }
 
 void allFlash() {
-  allOn();
-  checkButton();
-  delay(100);
-  allOff();
-  checkButton();
-  delay(100);
+  
+  int phases = 2;
+  int wait = 100;
+  int currentPhase = (currTime % (wait * phases)) / wait;
+
+  switch(currentPhase)
+  {
+    case 0 :
+      allOn();   
+      break;
+    case 1 :
+      allOff();
+      break;
+  }
 }
 
 void checkButton() {
-  state = digitalRead(8);
+  state = digitalRead(inPin);
 
   if (state != prevState) {
     if (state == HIGH) {
@@ -92,7 +176,9 @@ void checkButton() {
 void cycle() {
 
   checkButton();
-  
+
+  // Serial.println(pressCount);
+
   if (pressCount % 5 == 0) {
     allOn();
   }
@@ -100,10 +186,10 @@ void cycle() {
     allOff();
   }
   if (pressCount % 5 == 2) {
-    allBlink();
+    bounce();
   }
   if (pressCount % 5 == 3) {
-    bounce();
+    zigzag();
   }
   if (pressCount % 5 == 4) {
     allFlash();
@@ -112,5 +198,6 @@ void cycle() {
 
 //// the loop function runs over and over again forever
 void loop() {
+  currTime = millis();
   cycle();
 }
