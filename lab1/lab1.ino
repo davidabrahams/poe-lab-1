@@ -1,7 +1,8 @@
 
-const int inPins[] = {A0, 8};
-const int outPins[] = {9, 10, 11, 12, 13};
+const int inPins[] = {A0, 8};  // The pins we will be reading in
+const int outPins[] = {9, 10, 11, 12, 13};  // The pins we will be outputting to (The LEDs)
 
+// Initialize all our variables
 int prevState = LOW;
 int state = LOW;
 int pressCount = 0;
@@ -10,60 +11,67 @@ long currTime = 0;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
+  // Initialize all the input and output pins
   for (int i = 0; i < sizeof(inPins); i++) {
     pinMode(inPins[i], INPUT);
   }
   for (int i = 0; i < sizeof(outPins); i++) {
     pinMode(outPins[i], OUTPUT);
   }
-  Serial.begin(9600);
 }
 
+// Turn on all the pins
 void allOn() {
   for (int i = 0; i < sizeof(outPins); i++) {
     digitalWrite(outPins[i], HIGH);
   }
 }
 
+// Turn off all the pins
 void allOff() {
   for (int i = 0; i < sizeof(outPins); i++) {
     digitalWrite(outPins[i], LOW);
   }
 }
 
-void allOffExcept(int pin)
-{
+// Turn off every pin except one pin, which we turn on
+void allOffExcept(int pin) {
   for (int i = 0; i < sizeof(outPins); i++) {
-
-    // If the currnet output pin is in the input, then turn this pin on.
+    // If the current output pin is the argument pin, turn it on
     if (pin == outPins[i]) {
       digitalWrite(outPins[i], HIGH);
-    } else {
+    }
+    // Otherwise, turn it off
+    else {
       digitalWrite(outPins[i], LOW);
     }
   }
 }
 
-void allOffExcept(int pin1, int pin2)
-{
+// Turn off every pin except two pins, which we turn on
+void allOffExcept(int pin1, int pin2) {
   for (int i = 0; i < sizeof(outPins); i++) {
-
-    // If the currnet output pin is in the input, then turn this pin on.
+    // If the current output pin is either of the argument pins, turn it on
     if (pin1 == outPins[i] || pin2 == outPins[i]) {
       digitalWrite(outPins[i], HIGH);
-    } else {
+    }
+    else {
       digitalWrite(outPins[i], LOW);
     }
   }
 }
 
+// Calculate which "phase" we're currently in. For example, if we have 4 phases, a wait time of 1000, and ratio is, then calcCurrentPhase returns 0, 1, 2, or 3, switching values every second.
+int calcCurrentPhase(int phases, int wait) {
+  int scaledWait = wait * ratio;
+  return (currTime % (scaledWait * phases)) / scaledWait;
+}
+
+// Bounce the LED light back and forth
 void bounce() {
 
+  int currentPhase = calcCurrentPhase(8, 50);
 
-  int phases = 8;
-  int wait = 50 * ratio;  // in milliseconds
-  int currentPhase = (currTime % (wait * phases)) / wait;
-  
   switch(currentPhase)
   {
 
@@ -96,11 +104,10 @@ void bounce() {
 
 }
 
+// Cycle the LED light
 void wheel() {
 
-  int phases = 5;
-  int wait = 100 * ratio;
-  int currentPhase = (currTime % (wait * phases)) / wait;
+  int currentPhase = calcCurrentPhase(5, 100);
 
   switch(currentPhase)
   {
@@ -123,16 +130,16 @@ void wheel() {
 
 }
 
+// Move the LED from inside to outside
 void zigzag()
 {
-  int phases = 4;
-  int wait = 100 * ratio;
-  int currentPhase = (currTime % (wait * phases)) / wait;
+
+  int currentPhase = calcCurrentPhase(4, 100);
 
   switch(currentPhase)
   {
     case 0 :
-      allOffExcept(outPins[0], outPins[4]);   
+      allOffExcept(outPins[0], outPins[4]);
       break;
     case 1 :
       allOffExcept(outPins[1], outPins[3]);
@@ -146,16 +153,15 @@ void zigzag()
   }
 }
 
+// Flash all LED lights
 void allFlash() {
-  
-  int phases = 2;
-  int wait = 100 * ratio;
-  int currentPhase = (currTime % (wait * phases)) / wait;
+
+  int currentPhase = calcCurrentPhase(2, 100);
 
   switch(currentPhase)
   {
     case 0 :
-      allOn();   
+      allOn();
       break;
     case 1 :
       allOff();
@@ -163,6 +169,7 @@ void allFlash() {
   }
 }
 
+// Read in the button pin. If It has just gone from Low To High, then register a button press.
 void checkButton() {
   state = digitalRead(inPins[1]);
 
@@ -175,11 +182,10 @@ void checkButton() {
   prevState = state;
 }
 
+// Based on the total number of presses, do a different LED display.
 void cycle() {
 
   checkButton();
-
-  // Serial.println(pressCount);
 
   if (pressCount % 6 == 0) {
     allOn();
@@ -203,11 +209,11 @@ void cycle() {
 
 //// the loop function runs over and over again forever
 void loop() {
-  currTime = millis();
-  int val = analogRead(inPins[0]);
-  float voltage= val * (5.0 / 1023.0);
-  ratio = 5.0 / (3.6 * voltage - 0.8);
-  ratio = ((int)((ratio + 0.25) / 0.5)) * 0.5;
-  ratio = min(max(ratio, 0.5), 2.5);
-  cycle();
+  currTime = millis();  // read in the current time in milli seconds
+  int val = analogRead(inPins[0]); // read in the value of the distance sensor
+  float voltage= val * (5.0 / 1023.0); // convert it to a voltage from 0-5
+  ratio = 5.0 / (3.6 * voltage - 0.8); // convert it to a ratio where 0.5 volts corresponds to a ratio of 5, and 3 volts corresponds to a ratio of 0.5.
+  ratio = ((int)((ratio + 0.25) / 0.5)) * 0.5; // round it to the nearest 0.5 volts
+  ratio = min(max(ratio, 0.5), 2.5); // coerce it inside the bounds [0.5, 2.5]
+  cycle(); // display the correct LED configuration
 }
