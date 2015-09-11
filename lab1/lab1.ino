@@ -1,16 +1,18 @@
 
-const int inPin = 8;
+const int inPins[] = {A0, 8};
 const int outPins[] = {9, 10, 11, 12, 13};
 
 int prevState = LOW;
 int state = LOW;
 int pressCount = 0;
+float ratio = 1.0;
 long currTime = 0;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
-  // initialize digital pin 13 as an output.
-  pinMode(inPin, INPUT);
+  for (int i = 0; i < sizeof(inPins); i++) {
+    pinMode(inPins[i], INPUT);
+  }
   for (int i = 0; i < sizeof(outPins); i++) {
     pinMode(outPins[i], OUTPUT);
   }
@@ -59,7 +61,7 @@ void bounce() {
 
 
   int phases = 8;
-  int wait = 50;  // in milliseconds
+  int wait = 50 * ratio;  // in milliseconds
   int currentPhase = (currTime % (wait * phases)) / wait;
   
   switch(currentPhase)
@@ -97,7 +99,7 @@ void bounce() {
 void wheel() {
 
   int phases = 5;
-  int wait = 100;
+  int wait = 100 * ratio;
   int currentPhase = (currTime % (wait * phases)) / wait;
 
   switch(currentPhase)
@@ -124,7 +126,7 @@ void wheel() {
 void zigzag()
 {
   int phases = 4;
-  int wait = 100;
+  int wait = 100 * ratio;
   int currentPhase = (currTime % (wait * phases)) / wait;
 
   switch(currentPhase)
@@ -147,7 +149,7 @@ void zigzag()
 void allFlash() {
   
   int phases = 2;
-  int wait = 100;
+  int wait = 100 * ratio;
   int currentPhase = (currTime % (wait * phases)) / wait;
 
   switch(currentPhase)
@@ -162,7 +164,7 @@ void allFlash() {
 }
 
 void checkButton() {
-  state = digitalRead(inPin);
+  state = digitalRead(inPins[1]);
 
   if (state != prevState) {
     if (state == HIGH) {
@@ -179,25 +181,33 @@ void cycle() {
 
   // Serial.println(pressCount);
 
-  if (pressCount % 5 == 0) {
+  if (pressCount % 6 == 0) {
     allOn();
   }
-  if (pressCount % 5 == 1) {
+  if (pressCount % 6 == 1) {
     allOff();
   }
-  if (pressCount % 5 == 2) {
+  if (pressCount % 6 == 2) {
     bounce();
   }
-  if (pressCount % 5 == 3) {
+  if (pressCount % 6 == 3) {
     zigzag();
   }
-  if (pressCount % 5 == 4) {
+  if (pressCount % 6 == 4) {
     allFlash();
+  }
+  if (pressCount % 6 == 5) {
+    wheel();
   }
 }
 
 //// the loop function runs over and over again forever
 void loop() {
   currTime = millis();
+  int val = analogRead(inPins[0]);
+  float voltage= val * (5.0 / 1023.0);
+  ratio = 5.0 / (3.6 * voltage - 0.8);
+  ratio = ((int)((ratio + 0.25) / 0.5)) * 0.5;
+  ratio = min(max(ratio, 0.5), 2.5);
   cycle();
 }
