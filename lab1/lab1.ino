@@ -177,6 +177,8 @@ void cycle() {
 
   checkButton();
 
+  // Serial.println(pressCount);
+
   if (pressCount % 5 == 0) {
     allOn();
   }
@@ -196,9 +198,6 @@ void cycle() {
 
 //// the loop function runs over and over again forever
 void loop() {
-//  checkButton();
   currTime = millis();
   cycle();
-//allFlash();
-//  allOffExcept(outPins[4]);
 }
