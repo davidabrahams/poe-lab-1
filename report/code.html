@@ -1,0 +1,235 @@
+<html>
+
+<div class="code arduino">
+    <h4 class="cHead"><span><a href="http://www.arduino.cc">arduino</a> code</span>lab1.ino</h4>
+    <div class="cBody">
+        <div class="lines">
+            01<br />02<br />03<br />04<br />05<br />06<br />07<br />08<br />09<br />10<br />11<br />12<br />13<br />14<br />15<br />16<br />17<br />18<br />19<br />20<br />21<br />22<br />23<br />24<br />25<br />26<br />27<br />28<br />29<br />30<br />31<br />32<br />33<br />34<br />35<br />36<br />37<br />38<br />39<br />40<br />41<br />42<br />43<br />44<br />45<br />46<br />47<br />48<br />49<br />50<br />51<br />52<br />53<br />54<br />55<br />56<br />57<br />58<br />59<br />60<br />61<br />62<br />63<br />64<br />65<br />66<br />67<br />68<br />69<br />70<br />71<br />72<br />73<br />74<br />75<br />76<br />77<br />78<br />79<br />80<br />81<br />82<br />83<br />84<br />85<br />86<br />87<br />88<br />89<br />90<br />91<br />92<br />93<br />94<br />95<br />96<br />97<br />98<br />99<br />100<br />101<br />102<br />103<br />104<br />105<br />106<br />107<br />108<br />109<br />110<br />111<br />112<br />113<br />114<br />115<br />116<br />117<br />118<br />119<br />120<br />121<br />122<br />123<br />124<br />125<br />126<br />127<br />128<br />129<br />130<br />131<br />132<br />133<br />134<br />135<br />136<br />137<br />138<br />139<br />140<br />141<br />142<br />143<br />144<br />145<br />146<br />147<br />148<br />149<br />150<br />151<br />152<br />153<br />154<br />155<br />156<br />157<br />158<br />159<br />160<br />161<br />162<br />163<br />164<br />165<br />166<br />167<br />168<br />169<br />170<br />171<br />172<br />173<br />174<br />175<br />176<br />177<br />178<br />179<br />180<br />181<br />182<br />183<br />184<br />185<br />186<br />187<br />188<br />189<br />190<br />191<br />192<br />193<br />194<br />195<br />196<br />197<br />198<br />199<br />200<br />201<br />202<br />203<br />204<br />205<br />206<br />207<br />208<br />209<br />210<br />211<br />212<br />213<br />214<br />215<br />216<br />217<br />218
+        </div>
+<pre>const <span Class="KEY">int</span> inPins[] = {A0, 8};  <span Class="COM">// The pins we will be reading in
+</span>const <span Class="KEY">int</span> outPins[] = {9, 10, 11, 12, 13};  <span Class="COM">// The pins we will be outputting to (The LEDs)
+</span>
+<span Class="COM">// Initialize all our variables
+</span><span Class="KEY">int</span> prevState = <span Class="STR">LOW</span>;
+<span Class="KEY">int</span> state = <span Class="STR">LOW</span>;
+<span Class="KEY">int</span> pressCount = 0;
+<span Class="KEY">float</span> ratio = 1.0;
+<span Class="KEY">long</span> currTime = 0;
+
+<span Class="COM">// the <span Class="KEY">setup</span> function runs once when you press reset or power the board
+</span><span Class="KEY">void</span> <span Class="KEY">setup</span>() {
+  <span Class="COM">// Initialize all the input and output pins
+</span>  <span Class="KEY">for</span> (<span Class="KEY">int</span> i = 0; i &lt; sizeof(inPins); i++) {
+    <span Class="KEY">pinMode</span>(inPins[i], <span Class="STR">INPUT</span>);
+  }
+  <span Class="KEY">for</span> (<span Class="KEY">int</span> i = 0; i &lt; sizeof(outPins); i++) {
+    <span Class="KEY">pinMode</span>(outPins[i], <span Class="STR">OUTPUT</span>);
+  }
+}
+
+<span Class="COM">// Turn on all the pins
+</span><span Class="KEY">void</span> allOn() {
+  <span Class="KEY">for</span> (<span Class="KEY">int</span> i = 0; i &lt; sizeof(outPins); i++) {
+    <span Class="KEY">digitalWrite</span>(outPins[i], <span Class="STR">HIGH</span>);
+  }
+}
+
+<span Class="COM">// Turn off all the pins
+</span><span Class="KEY">void</span> allOff() {
+  <span Class="KEY">for</span> (<span Class="KEY">int</span> i = 0; i &lt; sizeof(outPins); i++) {
+    <span Class="KEY">digitalWrite</span>(outPins[i], <span Class="STR">LOW</span>);
+  }
+}
+
+<span Class="COM">// Turn off every pin except one pin, which we turn on
+</span><span Class="KEY">void</span> allOffExcept(<span Class="KEY">int</span> pin) {
+  <span Class="KEY">for</span> (<span Class="KEY">int</span> i = 0; i &lt; sizeof(outPins); i++) {
+    <span Class="COM">// If the current output pin is the argument pin, turn it on
+</span>    <span Class="KEY">if</span> (pin == outPins[i]) {
+      <span Class="KEY">digitalWrite</span>(outPins[i], <span Class="STR">HIGH</span>);
+    }
+    <span Class="COM">// Otherwise, turn it off
+</span>    <span Class="KEY">else</span> {
+      <span Class="KEY">digitalWrite</span>(outPins[i], <span Class="STR">LOW</span>);
+    }
+  }
+}
+
+<span Class="COM">// Turn off every pin except two pins, which we turn on
+</span><span Class="KEY">void</span> allOffExcept(<span Class="KEY">int</span> pin1, <span Class="KEY">int</span> pin2) {
+  <span Class="KEY">for</span> (<span Class="KEY">int</span> i = 0; i &lt; sizeof(outPins); i++) {
+    <span Class="COM">// If the current output pin is either of the argument pins, turn it on
+</span>    <span Class="KEY">if</span> (pin1 == outPins[i] || pin2 == outPins[i]) {
+      <span Class="KEY">digitalWrite</span>(outPins[i], <span Class="STR">HIGH</span>);
+    }
+    <span Class="KEY">else</span> {
+      <span Class="KEY">digitalWrite</span>(outPins[i], <span Class="STR">LOW</span>);
+    }
+  }
+}
+
+<span Class="COM">// Calculate which "phase" we're currently in. For example, <span Class="KEY">if</span> we have 4 phases, a wait time of 1000, and ratio is, then calcCurrentPhase returns 0, 1, 2, or 3, switching values every second.
+</span><span Class="KEY">int</span> calcCurrentPhase(<span Class="KEY">int</span> phases, <span Class="KEY">int</span> wait) {
+  <span Class="KEY">int</span> scaledWait = wait * ratio;
+  <span Class="KEY">return</span> (currTime % (scaledWait * phases)) / scaledWait;
+}
+
+<span Class="COM">// Bounce the LED light back and forth
+</span><span Class="KEY">void</span> bounce() {
+
+  <span Class="KEY">int</span> currentPhase = calcCurrentPhase(8, 50);
+
+  <span Class="KEY">switch</span>(currentPhase)
+  {
+
+    <span Class="KEY">case</span> 0 :
+      allOffExcept(outPins[0]);
+      <span Class="KEY">break</span>;
+    <span Class="KEY">case</span> 1 :
+      allOffExcept(outPins[1]);
+      <span Class="KEY">break</span>;
+    <span Class="KEY">case</span> 2 :
+      allOffExcept(outPins[2]);
+      <span Class="KEY">break</span>;
+    <span Class="KEY">case</span> 3 :
+      allOffExcept(outPins[3]);
+      <span Class="KEY">break</span>;
+    <span Class="KEY">case</span> 4 :
+      allOffExcept(outPins[4]);
+      <span Class="KEY">break</span>;
+    <span Class="KEY">case</span> 5 :
+      allOffExcept(outPins[3]);
+      <span Class="KEY">break</span>;
+    <span Class="KEY">case</span> 6 :
+      allOffExcept(outPins[2]);
+      <span Class="KEY">break</span>;
+    <span Class="KEY">case</span> 7 :
+      allOffExcept(outPins[1]);
+      <span Class="KEY">break</span>;
+
+  }
+
+}
+
+<span Class="COM">// Cycle the LED light
+</span><span Class="KEY">void</span> wheel() {
+
+  <span Class="KEY">int</span> currentPhase = calcCurrentPhase(5, 100);
+
+  <span Class="KEY">switch</span>(currentPhase)
+  {
+    <span Class="KEY">case</span> 0 :
+      allOffExcept(outPins[0]);
+      <span Class="KEY">break</span>;
+    <span Class="KEY">case</span> 1 :
+      allOffExcept(outPins[1]);
+      <span Class="KEY">break</span>;
+    <span Class="KEY">case</span> 2 :
+      allOffExcept(outPins[2]);
+      <span Class="KEY">break</span>;
+    <span Class="KEY">case</span> 3 :
+      allOffExcept(outPins[3]);
+      <span Class="KEY">break</span>;
+    <span Class="KEY">case</span> 4 :
+      allOffExcept(outPins[4]);
+      <span Class="KEY">break</span>;
+  }
+
+}
+
+<span Class="COM">// Move the LED from inside to outside
+</span><span Class="KEY">void</span> zigzag()
+{
+
+  <span Class="KEY">int</span> currentPhase = calcCurrentPhase(4, 100);
+
+  <span Class="KEY">switch</span>(currentPhase)
+  {
+    <span Class="KEY">case</span> 0 :
+      allOffExcept(outPins[0], outPins[4]);
+      <span Class="KEY">break</span>;
+    <span Class="KEY">case</span> 1 :
+      allOffExcept(outPins[1], outPins[3]);
+      <span Class="KEY">break</span>;
+    <span Class="KEY">case</span> 2 :
+      allOffExcept(outPins[2]);
+      <span Class="KEY">break</span>;
+    <span Class="KEY">case</span> 3 :
+      allOffExcept(outPins[1], outPins[3]);
+      <span Class="KEY">break</span>;
+  }
+}
+
+<span Class="COM">// Flash all LED lights
+</span><span Class="KEY">void</span> allFlash() {
+
+  <span Class="KEY">int</span> currentPhase = calcCurrentPhase(2, 100);
+
+  <span Class="KEY">switch</span>(currentPhase)
+  {
+    <span Class="KEY">case</span> 0 :
+      allOn();
+      <span Class="KEY">break</span>;
+    <span Class="KEY">case</span> 1 :
+      allOff();
+      <span Class="KEY">break</span>;
+  }
+}
+
+<span Class="COM">// Read in the button pin. If It has just gone from Low To High, then register a button press.
+</span><span Class="KEY">void</span> checkButton() {
+  state = <span Class="KEY">digitalRead</span>(inPins[1]);
+
+  <span Class="KEY">if</span> (state != prevState) {
+    <span Class="KEY">if</span> (state == <span Class="STR">HIGH</span>) {
+      pressCount++;
+    }
+  }
+
+  prevState = state;
+}
+
+<span Class="COM">// Based on the total number of presses, <span Class="KEY">do</span> a different LED display.
+</span><span Class="KEY">void</span> cycle() {
+
+  checkButton();
+
+  <span Class="KEY">if</span> (pressCount % 6 == 0) {
+    allOn();
+  }
+  <span Class="KEY">if</span> (pressCount % 6 == 1) {
+    allOff();
+  }
+  <span Class="KEY">if</span> (pressCount % 6 == 2) {
+    bounce();
+  }
+  <span Class="KEY">if</span> (pressCount % 6 == 3) {
+    zigzag();
+  }
+  <span Class="KEY">if</span> (pressCount % 6 == 4) {
+    allFlash();
+  }
+  <span Class="KEY">if</span> (pressCount % 6 == 5) {
+    wheel();
+  }
+}
+
+<span Class="COM">//// the <span Class="KEY">loop</span> function runs over and over again forever
+</span><span Class="KEY">void</span> <span Class="KEY">loop</span>() {
+  currTime = <span Class="KEY">millis</span>();  <span Class="COM">// read in the current time in milli seconds
+</span>  <span Class="KEY">int</span> val = <span Class="KEY">analogRead</span>(inPins[0]); <span Class="COM">// read in the value of the distance sensor
+</span>  <span Class="KEY">float</span> voltage= val * (5.0 / 1023.0); <span Class="COM">// convert it to a voltage from 0-5
+</span>  ratio = 5.0 / (3.6 * voltage - 0.8); <span Class="COM">// convert it to a ratio where 0.5 volts corresponds to a ratio of 5, and 3 volts corresponds to a ratio of 0.5.
+</span>  ratio = ((<span Class="KEY">int</span>)((ratio + 0.25) / 0.5)) * 0.5; <span Class="COM">// round it to the nearest 0.5 volts
+</span>  ratio = <span Class="KEY">min</span>(<span Class="KEY">max</span>(ratio, 0.5), 2.5); <span Class="COM">// coerce it inside the bounds [0.5, 2.5]
+</span>  cycle(); <span Class="COM">// display the correct LED configuration
+</span>}</pre>
+    </div>
+    <div class="cFoot">
+        <a href="http://www.onformative.com/blog/codeformatter">code formatter</a>
+    </div>
+</div>
+
+<link rel="stylesheet" href="prettifying.css">
+
+</html>
